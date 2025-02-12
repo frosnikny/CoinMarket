@@ -1,0 +1,9 @@
+# Environment
+.env
+
+# Go workspace file
+go.work
+go.work.sum
+
+# Jetbrains
+.idea
