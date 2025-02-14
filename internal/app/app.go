@@ -4,11 +4,14 @@ import (
 	"CoinMarket/internal/config"
 	"CoinMarket/internal/dsn"
 	"CoinMarket/internal/repository"
+	"CoinMarket/internal/services"
 )
 
 type Application struct {
-	Repo   *repository.Repository
-	Config *config.Config
+	Repo        *repository.Repository
+	UserRepo    *repository.UserRepository
+	AuthService *services.AuthService
+	Config      *config.Config
 }
 
 func New() *Application {
@@ -24,6 +27,9 @@ func New() *Application {
 	if err != nil {
 		panic(err)
 	}
+
+	a.UserRepo = repository.NewUserRepository(a.Repo.DB)
+	a.AuthService = services.NewAuthService(a.UserRepo, a.Config.JwtKey)
 
 	return a
 }

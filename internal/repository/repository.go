@@ -6,7 +6,7 @@ import (
 )
 
 type Repository struct {
-	db *gorm.DB
+	DB *gorm.DB
 }
 
 func New(dsn string) (*Repository, error) {
@@ -16,7 +16,7 @@ func New(dsn string) (*Repository, error) {
 	}
 
 	return &Repository{
-		db: db,
+		DB: db,
 	}, nil
 }
 
