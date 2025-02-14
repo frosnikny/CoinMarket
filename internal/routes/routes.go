@@ -17,13 +17,10 @@ func SetupRoutes(r *gin.Engine, app *app.Application) {
 		api.POST("/auth", authHandler.Auth)
 
 		protected := api.Group("/")
-		protected.Use(middleware.AuthMiddleware(app.AuthService))
+		protected.Use(middleware.AuthMiddleware(app.AuthService, app.UserRepo))
 
 		protected.GET("/info", walletHandler.GetUserInfo)
-
-		protected.POST("/sendCoin", func(c *gin.Context) {
-			c.JSON(http.StatusOK, gin.H{"message": "Coin sent!"})
-		})
+		protected.POST("/sendCoin", walletHandler.SendCoins)
 
 		protected.GET("/buy/:item", func(c *gin.Context) {
 			item := c.Param("item")

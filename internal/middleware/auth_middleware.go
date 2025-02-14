@@ -1,13 +1,14 @@
 package middleware
 
 import (
+	"CoinMarket/internal/repository"
 	"CoinMarket/internal/services"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strings"
 )
 
-func AuthMiddleware(authService *services.AuthService) gin.HandlerFunc {
+func AuthMiddleware(authService *services.AuthService, userRepo *repository.UserRepository) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
 
@@ -27,7 +28,15 @@ func AuthMiddleware(authService *services.AuthService) gin.HandlerFunc {
 			return
 		}
 
-		c.Set("username", claims.Username)
+		user, err := userRepo.GetUserByUsername(claims.Username)
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "User not found"})
+			c.Abort()
+			return
+		}
+
+		c.Set("userID", user.ID)
+		c.Set("username", user.Username)
 
 		c.Next()
 	}

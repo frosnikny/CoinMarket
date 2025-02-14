@@ -35,5 +35,7 @@ func main() {
 func runMigrations(db *gorm.DB) error {
 	return db.AutoMigrate(
 		&models.User{},
+		&models.InventoryItem{},
+		&models.Transaction{},
 	)
 }

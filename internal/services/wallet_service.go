@@ -3,14 +3,18 @@ package services
 import (
 	"CoinMarket/internal/models"
 	"CoinMarket/internal/repository"
+	"errors"
+	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
 type WalletService struct {
-	repo *repository.WalletRepository
+	WalletRepo *repository.WalletRepository
+	UserRepo   *repository.UserRepository
 }
 
-func NewWalletService(repo *repository.WalletRepository) *WalletService {
-	return &WalletService{repo: repo}
+func NewWalletService(walletRepo *repository.WalletRepository, userRepo *repository.UserRepository) *WalletService {
+	return &WalletService{WalletRepo: walletRepo, UserRepo: userRepo}
 }
 
 type InfoResponse struct {
@@ -22,28 +26,30 @@ type InfoResponse struct {
 	} `json:"coinHistory"`
 }
 
-func (s *WalletService) GetUserInfo(username string) (*InfoResponse, error) {
-	coins, err := s.repo.GetBalance(username)
+func (s *WalletService) GetUserInfo(userID uuid.UUID) (*InfoResponse, error) {
+	coins, err := s.WalletRepo.GetBalance(userID)
 	if err != nil {
 		return nil, err
 	}
 
-	inventory, err := s.repo.GetInventory(username)
+	inventory, err := s.WalletRepo.GetInventory(userID)
 	if err != nil {
 		return nil, err
 	}
 
-	transactions, err := s.repo.GetTransactions(username)
+	transactions, err := s.WalletRepo.GetTransactions(userID)
 	if err != nil {
 		return nil, err
 	}
 
-	var received, sent []models.Transaction
-	for _, tx := range transactions {
-		if tx.ToUser == username {
-			received = append(received, tx)
+	// make для создания пустого массива
+	received := make([]models.Transaction, 0)
+	sent := make([]models.Transaction, 0)
+	for _, transaction := range transactions {
+		if transaction.ToUserID == userID {
+			received = append(received, transaction)
 		} else {
-			sent = append(sent, tx)
+			sent = append(sent, transaction)
 		}
 	}
 
@@ -55,4 +61,47 @@ func (s *WalletService) GetUserInfo(username string) (*InfoResponse, error) {
 	response.CoinHistory.Sent = sent
 
 	return response, nil
+}
+
+var (
+	ErrInsufficientFunds = errors.New("insufficient funds")
+	ErrNegativeAmount    = errors.New("amount must be positive")
+	ErrSelfTransfer      = errors.New("cannot send coins to yourself")
+)
+
+func (s *WalletService) SendCoins(fromUserID, toUserID uuid.UUID, amount int) error {
+	if fromUserID == toUserID {
+		return ErrSelfTransfer
+	}
+
+	if amount <= 0 {
+		return ErrNegativeAmount
+	}
+
+	balance, err := s.WalletRepo.GetBalance(fromUserID)
+	if err != nil {
+		return err
+	}
+
+	if balance < amount {
+		return ErrInsufficientFunds
+	}
+
+	return s.WalletRepo.DB.Transaction(func(tx *gorm.DB) error {
+		repo := repository.NewWalletRepository(tx)
+
+		if err := repo.UpdateBalance(fromUserID, -amount); err != nil {
+			return err
+		}
+
+		if err := repo.UpdateBalance(toUserID, amount); err != nil {
+			return err
+		}
+
+		if err := repo.CreateTransaction(fromUserID, toUserID, amount); err != nil {
+			return err
+		}
+
+		return nil
+	})
 }

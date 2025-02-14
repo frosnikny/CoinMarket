@@ -34,7 +34,7 @@ func New() *Application {
 	a.WalletRepo = repository.NewWalletRepository(a.Repo.DB)
 
 	a.AuthService = services.NewAuthService(a.UserRepo, a.Config.JwtKey)
-	a.WalletService = services.NewWalletService(a.WalletRepo)
+	a.WalletService = services.NewWalletService(a.WalletRepo, a.UserRepo)
 
 	return a
 }
