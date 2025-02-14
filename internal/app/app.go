@@ -8,10 +8,12 @@ import (
 )
 
 type Application struct {
-	Repo        *repository.Repository
-	UserRepo    *repository.UserRepository
-	AuthService *services.AuthService
-	Config      *config.Config
+	Repo          *repository.Repository
+	UserRepo      *repository.UserRepository
+	WalletRepo    *repository.WalletRepository
+	AuthService   *services.AuthService
+	WalletService *services.WalletService
+	Config        *config.Config
 }
 
 func New() *Application {
@@ -29,7 +31,10 @@ func New() *Application {
 	}
 
 	a.UserRepo = repository.NewUserRepository(a.Repo.DB)
+	a.WalletRepo = repository.NewWalletRepository(a.Repo.DB)
+
 	a.AuthService = services.NewAuthService(a.UserRepo, a.Config.JwtKey)
+	a.WalletService = services.NewWalletService(a.WalletRepo)
 
 	return a
 }
