@@ -1,10 +1,13 @@
 package models
 
-import "gorm.io/gorm"
+import (
+	"github.com/google/uuid"
+	"gorm.io/gorm"
+)
 
 type Transaction struct {
 	gorm.Model
-	FromUser string `gorm:"not null"`
-	ToUser   string `gorm:"not null"`
-	Amount   int    `gorm:"not null"`
+	FromUserID uuid.UUID `gorm:"type:uuid;not null"`
+	ToUserID   uuid.UUID `gorm:"type:uuid;not null"`
+	Amount     int       `gorm:"not null"`
 }
