@@ -2,7 +2,7 @@ package unit
 
 import (
 	"CoinMarket/internal/domain/models"
-	"CoinMarket/internal/tests/mocks/repository_mocks"
+	"CoinMarket/internal/tests/mocks/repositorymocks"
 	"CoinMarket/internal/usecase"
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/crypto/bcrypt"
@@ -10,13 +10,15 @@ import (
 )
 
 func TestLogin(t *testing.T) {
-	mockUserRepo := new(repository_mocks.UserRepositoryMock)
+	mockUserRepo := new(repositorymocks.UserRepositoryMock)
 	jwtKey := "test_secret"
 	service := usecase.NewAuthService(mockUserRepo, jwtKey)
 
 	username := "testuser"
 	password := "password123"
-	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	assert.NoError(t, err)
+
 	mockUserRepo.On("GetUserByUsername", username).
 		Return(&models.User{Username: username, Password: string(hashedPassword)}, nil)
 
@@ -28,7 +30,7 @@ func TestLogin(t *testing.T) {
 }
 
 func TestGenerateToken(t *testing.T) {
-	mockUserRepo := new(repository_mocks.UserRepositoryMock)
+	mockUserRepo := new(repositorymocks.UserRepositoryMock)
 	jwtKey := "test_secret"
 	service := usecase.NewAuthService(mockUserRepo, jwtKey)
 
@@ -39,12 +41,14 @@ func TestGenerateToken(t *testing.T) {
 }
 
 func TestValidateToken(t *testing.T) {
-	mockUserRepo := new(repository_mocks.UserRepositoryMock)
+	mockUserRepo := new(repositorymocks.UserRepositoryMock)
 	jwtKey := "test_secret"
 	service := usecase.NewAuthService(mockUserRepo, jwtKey)
 
 	username := "test"
-	token, _ := service.GenerateToken(username)
+	token, err := service.GenerateToken(username)
+	assert.NoError(t, err)
+
 	claims, err := service.ValidateToken(token)
 
 	assert.NoError(t, err)

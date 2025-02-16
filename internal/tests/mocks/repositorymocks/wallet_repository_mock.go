@@ -1,4 +1,4 @@
-package repository_mocks
+package repositorymocks
 
 import (
 	"CoinMarket/internal/domain/models"

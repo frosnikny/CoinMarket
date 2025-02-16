@@ -3,7 +3,7 @@ package unit
 import (
 	"CoinMarket/internal/domain/models"
 	"CoinMarket/internal/infrastructure/repository"
-	"CoinMarket/internal/tests/mocks/repository_mocks"
+	"CoinMarket/internal/tests/mocks/repositorymocks"
 	"CoinMarket/internal/usecase"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -11,9 +11,9 @@ import (
 )
 
 func TestGetUserInfo(t *testing.T) {
-	mockWalletRepo := new(repository_mocks.WalletRepositoryMock)
-	mockUserRepo := new(repository_mocks.UserRepositoryMock)
-	mockItemRepo := new(repository_mocks.ItemRepositoryMock)
+	mockWalletRepo := new(repositorymocks.WalletRepositoryMock)
+	mockUserRepo := new(repositorymocks.UserRepositoryMock)
+	mockItemRepo := new(repositorymocks.ItemRepositoryMock)
 
 	service := usecase.NewWalletService(mockWalletRepo, mockUserRepo, mockItemRepo)
 
@@ -33,9 +33,9 @@ func TestGetUserInfo(t *testing.T) {
 }
 
 func TestSendCoins(t *testing.T) {
-	mockWalletRepo := new(repository_mocks.WalletRepositoryMock)
-	mockUserRepo := new(repository_mocks.UserRepositoryMock)
-	mockItemRepo := new(repository_mocks.ItemRepositoryMock)
+	mockWalletRepo := new(repositorymocks.WalletRepositoryMock)
+	mockUserRepo := new(repositorymocks.UserRepositoryMock)
+	mockItemRepo := new(repositorymocks.ItemRepositoryMock)
 
 	service := usecase.NewWalletService(mockWalletRepo, mockUserRepo, mockItemRepo)
 
@@ -65,9 +65,9 @@ func TestSendCoins(t *testing.T) {
 }
 
 func TestBuyItem(t *testing.T) {
-	mockWalletRepo := new(repository_mocks.WalletRepositoryMock)
-	mockUserRepo := new(repository_mocks.UserRepositoryMock)
-	mockItemRepo := new(repository_mocks.ItemRepositoryMock)
+	mockWalletRepo := new(repositorymocks.WalletRepositoryMock)
+	mockUserRepo := new(repositorymocks.UserRepositoryMock)
+	mockItemRepo := new(repositorymocks.ItemRepositoryMock)
 
 	service := usecase.NewWalletService(mockWalletRepo, mockUserRepo, mockItemRepo)
 

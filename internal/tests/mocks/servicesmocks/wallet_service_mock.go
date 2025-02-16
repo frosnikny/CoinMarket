@@ -1,4 +1,4 @@
-package services_mocks
+package servicesmocks
 
 import (
 	"CoinMarket/internal/domain/models"

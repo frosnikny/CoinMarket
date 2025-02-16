@@ -61,15 +61,16 @@ func (h *WalletHandler) SendCoins(c *gin.Context) {
 	toUser := req.ToUser
 	err := h.service.SendCoins(fromUsernameStr, toUser, req.Amount)
 	if err != nil {
-		if errors.Is(err, usecase.ErrInsufficientFunds) {
+		switch {
+		case errors.Is(err, usecase.ErrInsufficientFunds):
 			c.JSON(http.StatusBadRequest, responses.ErrorResponse{Errors: "Not enough coins"})
-		} else if errors.Is(err, usecase.ErrNegativeAmount) {
+		case errors.Is(err, usecase.ErrNegativeAmount):
 			c.JSON(http.StatusBadRequest, responses.ErrorResponse{Errors: "Amount must be positive"})
-		} else if errors.Is(err, usecase.ErrSelfTransfer) {
+		case errors.Is(err, usecase.ErrSelfTransfer):
 			c.JSON(http.StatusBadRequest, responses.ErrorResponse{Errors: "Cannot send coins to yourself"})
-		} else if errors.Is(err, gorm.ErrRecordNotFound) {
+		case errors.Is(err, gorm.ErrRecordNotFound):
 			c.JSON(http.StatusBadRequest, responses.ErrorResponse{Errors: "Recipient does not exist"})
-		} else {
+		default:
 			c.JSON(http.StatusInternalServerError, responses.ErrorResponse{Errors: "Transaction failed"})
 		}
 		return
@@ -93,11 +94,12 @@ func (h *WalletHandler) BuyItem(c *gin.Context) {
 	itemName := c.Param("item")
 	err := h.service.BuyItem(usernameStr, itemName)
 	if err != nil {
-		if errors.Is(err, usecase.ErrItemNotFound) {
+		switch {
+		case errors.Is(err, usecase.ErrItemNotFound):
 			c.JSON(http.StatusNotFound, responses.ErrorResponse{Errors: "Item not found"})
-		} else if errors.Is(err, usecase.ErrNotEnoughCoins) {
+		case errors.Is(err, usecase.ErrNotEnoughCoins):
 			c.JSON(http.StatusBadRequest, responses.ErrorResponse{Errors: "Not enough coins"})
-		} else {
+		default:
 			c.JSON(http.StatusInternalServerError, responses.ErrorResponse{Errors: "Failed to buy item"})
 		}
 		return

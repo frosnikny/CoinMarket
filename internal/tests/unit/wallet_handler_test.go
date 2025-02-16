@@ -2,7 +2,7 @@ package unit
 
 import (
 	"CoinMarket/internal/delivery/handlers"
-	"CoinMarket/internal/tests/mocks/services_mocks"
+	"CoinMarket/internal/tests/mocks/servicesmocks"
 	"CoinMarket/internal/usecase"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
@@ -12,7 +12,7 @@ import (
 )
 
 func TestHandlerGetUserInfo_Success(t *testing.T) {
-	mockService := new(services_mocks.WalletServiceMock)
+	mockService := new(servicesmocks.WalletServiceMock)
 	handler := handlers.NewWalletHandler(mockService)
 	username := "test_user"
 	w := httptest.NewRecorder()
@@ -28,7 +28,7 @@ func TestHandlerGetUserInfo_Success(t *testing.T) {
 }
 
 func TestHandlerBuyItem_Success(t *testing.T) {
-	mockService := new(services_mocks.WalletServiceMock)
+	mockService := new(servicesmocks.WalletServiceMock)
 	handler := handlers.NewWalletHandler(mockService)
 	username := "test_user"
 	w := httptest.NewRecorder()

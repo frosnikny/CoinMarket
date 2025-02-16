@@ -55,12 +55,12 @@ func TestMain(m *testing.M) {
 
 	testDB, err = repository.CreateDB(dsn.FromCfg(cfg))
 	if err != nil {
-		log.Fatalf("Ошибка подключения к тестовой базе данных: %v", err)
+		log.Fatalf("Error %v", err)
 	}
 
 	err = migrations.RunMigrations(testDB)
 	if err != nil {
-		log.Fatalf("Ошибка миграции: %v", err)
+		log.Fatalf("Error %v", err)
 	}
 
 	testApp = app.New(cfg)
@@ -69,7 +69,10 @@ func TestMain(m *testing.M) {
 
 	code := m.Run()
 
-	pool.Purge(resource)
+	err = pool.Purge(resource)
+	if err != nil {
+		log.Fatalf("Error %v", err)
+	}
 
 	os.Exit(code)
 }

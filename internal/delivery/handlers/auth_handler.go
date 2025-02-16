@@ -27,16 +27,17 @@ func (h *AuthHandler) Auth(c *gin.Context) {
 
 	token, err := h.service.Login(request.Username, request.Password)
 	if err != nil {
-		if errors.Is(err, usecase.ErrUserNotFound) {
+		switch {
+		case errors.Is(err, usecase.ErrUserNotFound):
 			token, err = h.service.Register(request.Username, request.Password)
 			if err != nil {
 				c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to register user"})
 				return
 			}
-		} else if errors.Is(err, usecase.ErrInvalidPass) {
+		case errors.Is(err, usecase.ErrInvalidPass):
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid password"})
 			return
-		} else {
+		default:
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
 			return
 		}

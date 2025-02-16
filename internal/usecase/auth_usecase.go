@@ -77,7 +77,7 @@ func (s *AuthService) GenerateToken(username string) (string, error) {
 func (s *AuthService) ValidateToken(tokenString string) (*Claims, error) {
 	claims := &Claims{}
 
-	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.ParseWithClaims(tokenString, claims, func(_ *jwt.Token) (interface{}, error) {
 		return s.jwtKey, nil
 	})
 

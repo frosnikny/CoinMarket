@@ -51,11 +51,12 @@ func (s *WalletService) GetUserInfo(username string) (*InfoResponse, error) {
 	// make для создания пустого массива
 	received := make([]models.Transaction, 0)
 	sent := make([]models.Transaction, 0)
-	for _, transaction := range transactions {
+	for i := range transactions {
+		transaction := &transactions[i]
 		if transaction.ToUser == username {
-			received = append(received, transaction)
+			received = append(received, *transaction)
 		} else {
-			sent = append(sent, transaction)
+			sent = append(sent, *transaction)
 		}
 	}
 
@@ -144,7 +145,8 @@ func (s *WalletService) BuyItem(user string, itemName string) error {
 		}
 
 		var found bool
-		for _, invItem := range inventory {
+		for i := range inventory {
+			invItem := &inventory[i]
 			if invItem.ItemType == item.Name {
 				found = true
 				break
