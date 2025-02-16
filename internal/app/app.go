@@ -2,25 +2,31 @@ package app
 
 import (
 	"CoinMarket/internal/config"
-	"CoinMarket/internal/dsn"
-	"CoinMarket/internal/repository"
-	"CoinMarket/internal/services"
+	"CoinMarket/internal/infrastructure/db/dsn"
+	"CoinMarket/internal/infrastructure/repository"
+	"CoinMarket/internal/usecase"
 )
 
 type Application struct {
-	Repo          *repository.Repository
-	UserRepo      *repository.UserRepository
-	WalletRepo    *repository.WalletRepository
-	AuthService   *services.AuthService
-	WalletService *services.WalletService
+	Repo       *repository.Repository
+	UserRepo   *repository.UserRepository
+	WalletRepo *repository.WalletRepository
+	ItemRepo   *repository.ItemRepository
+
+	AuthService   *usecase.AuthService
+	WalletService *usecase.WalletService
 	Config        *config.Config
 }
 
-func New() *Application {
+func New(readyConfig *config.Config) *Application {
 	var err error
 
 	a := &Application{}
-	a.Config, err = config.New()
+	if readyConfig != nil {
+		a.Config = readyConfig
+	} else {
+		a.Config, err = config.New()
+	}
 	if err != nil {
 		panic(err)
 	}
@@ -32,9 +38,13 @@ func New() *Application {
 
 	a.UserRepo = repository.NewUserRepository(a.Repo.DB)
 	a.WalletRepo = repository.NewWalletRepository(a.Repo.DB)
+	a.ItemRepo, err = repository.NewItemRepository(a.Repo.DB)
+	if err != nil {
+		panic(err)
+	}
 
-	a.AuthService = services.NewAuthService(a.UserRepo, a.Config.JwtKey)
-	a.WalletService = services.NewWalletService(a.WalletRepo, a.UserRepo)
+	a.AuthService = usecase.NewAuthService(a.UserRepo, a.Config.JwtKey)
+	a.WalletService = usecase.NewWalletService(a.WalletRepo, a.UserRepo, a.ItemRepo)
 
 	return a
 }

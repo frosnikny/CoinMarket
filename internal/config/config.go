@@ -24,7 +24,7 @@ func New() (*Config, error) {
 	// Load .env file
 	err = godotenv.Load()
 	if err != nil {
-		return nil, err
+		log.Println("Variables from .env file were not loaded")
 	}
 
 	cfg := &Config{}

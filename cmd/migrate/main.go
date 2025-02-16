@@ -2,40 +2,41 @@ package main
 
 import (
 	"CoinMarket/internal/config"
-	"CoinMarket/internal/dsn"
-	"CoinMarket/internal/models"
-	"CoinMarket/internal/repository"
+	"CoinMarket/internal/domain/models"
+	"CoinMarket/internal/infrastructure/db/dsn"
+	"CoinMarket/internal/infrastructure/repository"
 	"gorm.io/gorm"
 	"log"
 )
 
 func main() {
-	log.Println("Миграция началась...")
+	log.Println("Migration started...")
 
 	var err error
 
 	cfg, err := config.New()
 	if err != nil {
-		log.Fatalf("Ошибка загрузки конфигурации: %v", err)
+		log.Fatalf("Error loading configuration: %v", err)
 	}
 
 	db, err := repository.CreateDB(dsn.FromCfg(cfg))
 	if err != nil {
-		log.Fatalf("Ошибка подключения к базе данных: %v", err)
+		log.Fatalf("Error connecting to the database: %v", err)
 	}
 
-	err = runMigrations(db)
+	err = RunMigrations(db)
 	if err != nil {
-		log.Fatalf("Ошибка миграции: %v", err)
+		log.Fatalf("Migration error: %v", err)
 	}
 
-	log.Println("Миграция завершена успешно!")
+	log.Println("Migration completed successfully!")
 }
 
-func runMigrations(db *gorm.DB) error {
+func RunMigrations(db *gorm.DB) error {
 	return db.AutoMigrate(
 		&models.User{},
 		&models.InventoryItem{},
 		&models.Transaction{},
+		&models.Item{},
 	)
 }
